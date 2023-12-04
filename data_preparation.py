@@ -33,22 +33,37 @@ def findUserGender(speaker_id):
 
 counter = 0
 
+copy = False
+
+male_transcripts = open(final_dataset_directory + "/male/transcripts.txt",'w')
+female_transcripts = open(final_dataset_directory + "/female/transcripts.txt",'w')
+
 #Go through all speakers
 for speaker_id in os.listdir(original_dataset_directory):
+
     #Get their gender
     user_gender = findUserGender(speaker_id)
+
     #Go through all their books
     for book_path in os.listdir(original_dataset_directory + "/" + speaker_id):
         #And all audio files
         for file_name in os.listdir(original_dataset_directory + "/" + speaker_id + "/" + book_path):
             #And copy them to the respective directory
             if file_name.endswith("flac"):
-                if user_gender == "F":
+                if user_gender == "F" and copy:
                     shutil.copy2(original_dataset_directory + "/" + speaker_id + "/" + book_path + "/" + file_name,final_dataset_directory + "/female/" + file_name)
-                elif user_gender == "M":
+                elif user_gender == "M" and copy:
                     shutil.copy2(original_dataset_directory + "/" + speaker_id + "/" + book_path + "/" + file_name,final_dataset_directory + "/male/" + file_name)
                 else:
                     print("Error in gender type")
+        
+        #Add transcripts
+        transcripts = open(original_dataset_directory + "/" + speaker_id + "/" + book_path + "/" + speaker_id + "-" + book_path + ".trans.txt",'r').read()
+        if user_gender == "M":
+            male_transcripts.write(transcripts)
+        else:
+            female_transcripts.write(transcripts)
+
     counter += 1
 
 print(f"SUCCESS. Imported {counter} speakers")
